@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "1022786242261",
+    "project_id": "trendera-2fdc0",
+    "storage_bucket": "trendera-2fdc0.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1022786242261:android:df71890ba2a1702587845c",
+        "android_client_info": {
+          "package_name": "com.example.trendera"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1022786242261-pjt9n5ba586hrv86jdd6l7trhdcdfmq1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.trendera",
+            "certificate_hash": "1b9133f27b161e4f4d8b4ef7087fbc6f7cdffff8"
+          }
+        },
+        {
+          "client_id": "1022786242261-d5fudmrg60v2u4kr9lglpcvot6jqb5c3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAxgn9m7DVE-dY0Q5OsjXMH5Wfj5pYNSnY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1022786242261-d5fudmrg60v2u4kr9lglpcvot6jqb5c3.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1022786242261-26pkrs1khvp4tmtv5m7l59ij87qmnpid.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.trendera"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
