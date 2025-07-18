@@ -25,7 +25,7 @@ class _MyOrderPageState extends State<MyOrderPage> {
     final orders = orderProvider.myOrders;
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Theme.of(context).colorScheme.secondary,
       body: Column(
         children: [
           // ✅ Black Header
@@ -33,7 +33,7 @@ class _MyOrderPageState extends State<MyOrderPage> {
             child: Container(
               width: double.infinity,
               height: 70,
-              color: Colors.black,
+              color: Theme.of(context).colorScheme.secondary,
               child: Stack(
                 alignment: Alignment.center,
                 children: [
@@ -92,6 +92,7 @@ class _MyOrderPageState extends State<MyOrderPage> {
                           return Card(
                             margin: const EdgeInsets.symmetric(vertical: 8),
                             child: ListTile(
+                              contentPadding: const EdgeInsets.all(12),
                               leading:
                                   product.imageUrl.isNotEmpty
                                       ? ClipRRect(
@@ -113,7 +114,6 @@ class _MyOrderPageState extends State<MyOrderPage> {
                                               child: Icon(
                                                 Icons.broken_image,
                                                 color: Colors.grey[600],
-                                                size: 30,
                                               ),
                                             );
                                           },
@@ -127,10 +127,62 @@ class _MyOrderPageState extends State<MyOrderPage> {
                                           Icons.image_not_supported,
                                         ),
                                       ),
-                              title: Text(product.title),
-                              subtitle: Text(
-                                "₹${product.price.toStringAsFixed(2)}",
+                              title: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    product.title,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  if (product.selectedSize!.isNotEmpty)
+                                    Row(
+                                      children: [
+                                        Text("Size: ${product.selectedSize}"),
+                                        const SizedBox(width: 12),
+                                        Text("Qty: ${product.totalquantity}"),
+                                      ],
+                                    ),
+                                  if (product.selectedSize!.isEmpty)
+                                    Text("Qty: ${product.totalquantity}"),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    "₹${product.price.toStringAsFixed(2)}",
+                                    style: const TextStyle(
+                                      color: Colors.black87,
+                                    ),
+                                  ),
+                                ],
                               ),
+                              trailing:
+                                  product.paymentStatus == "success"
+                                      ? Column(
+                                        children: [
+                                          ClipOval(
+                                            child: Material(
+                                              color: Colors.lightGreen,
+                                              child: InkWell(
+                                                child: SizedBox(
+                                                  width: 40,
+                                                  height: 40,
+                                                  child: Icon(
+                                                    Icons.done_all,
+                                                    color: Colors.white,
+                                                    size: 20,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          Text("Status"),
+                                        ],
+                                      )
+                                      : const Icon(
+                                        Icons.cancel_outlined,
+                                        color: Colors.red,
+                                      ),
                             ),
                           );
                         },

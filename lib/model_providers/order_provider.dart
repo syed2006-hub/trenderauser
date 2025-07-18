@@ -22,11 +22,12 @@ class OrderProvider with ChangeNotifier {
       final allProducts =
           Provider.of<ProductProvider>(context, listen: false).allProducts;
 
-      final ordersSnapshot = await _firestore
-          .collection('users')
-          .doc(user.uid)
-          .collection('orders')
-          .get();
+      final ordersSnapshot =
+          await _firestore
+              .collection('users')
+              .doc(user.uid)
+              .collection('orders')
+              .get();
 
       List<ProductModel> loadedOrders = [];
 
@@ -37,36 +38,41 @@ class OrderProvider with ChangeNotifier {
         for (var item in items) {
           final matchingProduct = allProducts.firstWhere(
             (p) => p.id == item['id'],
-            orElse: () => ProductModel(
-              id: item['id'] ?? '',
-              title: item['title'] ?? '',
-              price: (item['price'] is num)
-                  ? (item['price'] as num).toDouble()
-                  : 0.0,
-              company: item['company'] ?? '',
-              imageUrl: List<String>.from(item['imageUrl'] ?? []),
-              productDescription: item['productDescription'] ?? '',
-              ratings: (item['ratings'] is num)
-                  ? (item['ratings'] as num).toDouble()
-                  : 0.0,
-              isFavorite: false,
-              type: item['type'] ?? '',
-              size: List<String>.from(item['size'] ?? []),
-              isOffer: item['isOffer'] ?? false,
-              offerImage: item['offerImage'],
-              offerDescription: item['offerDescription'],
-              carouselModel: item['carouselModel'],
-              imageBytes: item['imageBytes'],
-              totalquantity: item['quantity'] ?? 1,
-            ),
+            orElse:
+                () => ProductModel(
+                  id: item['id'] ?? '',
+                  title: item['title'] ?? '',
+                  price:
+                      (item['price'] is num)
+                          ? (item['price'] as num).toDouble()
+                          : 0.0,
+                  company: item['company'] ?? '',
+                  imageUrl: List<String>.from(item['imageUrl'] ?? []),
+                  productDescription: item['productDescription'] ?? '',
+                  ratings:
+                      (item['ratings'] is num)
+                          ? (item['ratings'] as num).toDouble()
+                          : 0.0,
+                  isFavorite: false,
+                  type: item['type'] ?? '',
+                  size: List<String>.from(item['size'] ?? []),
+                  isOffer: item['isOffer'] ?? false,
+                  offerImage: item['offerImage'],
+                  offerDescription: item['offerDescription'],
+                  carouselModel: item['carouselModel'],
+                  imageBytes: item['imageBytes'],
+                  totalquantity: item['quantity'] ?? 1,
+                ),
           );
 
           // If found, override dynamic fields from order
           final enrichedProduct = matchingProduct.copyWith(
-           totalquantity:
-            (item['quantity'] is num)
-                ? (item['quantity'] as num).toDouble()
-                : 1.0,
+            totalquantity:
+                (item['quantity'] is num)
+                    ? (item['quantity'] as num).toDouble()
+                    : 1.0,
+            selectedSize: item['selectedSize'],
+            paymentStatus: orderData['paymentStatus'], // pulled from Firestore
           );
 
           loadedOrders.add(enrichedProduct);
@@ -87,16 +93,16 @@ class OrderProvider with ChangeNotifier {
     if (uid == null) return;
 
     try {
-      final ordersSnapshot = await _firestore
-          .collection('users')
-          .doc(uid)
-          .collection('orders')
-          .get();
+      final ordersSnapshot =
+          await _firestore
+              .collection('users')
+              .doc(uid)
+              .collection('orders')
+              .get();
 
       for (var orderDoc in ordersSnapshot.docs) {
         final orderData = orderDoc.data();
-        final items =
-            List<Map<String, dynamic>>.from(orderData['items'] ?? []);
+        final items = List<Map<String, dynamic>>.from(orderData['items'] ?? []);
 
         final updatedItems =
             items.where((item) => item['id'] != product.id).toList();

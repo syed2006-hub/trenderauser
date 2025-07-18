@@ -20,6 +20,10 @@ class ProductModel {
   final String? imageBytes;
   final Timestamp? createdAt;
 
+  // ✅ Newly added fields
+  final String? selectedSize;
+  final String? paymentStatus;
+
   ProductModel({
     required this.id,
     required this.title,
@@ -38,6 +42,8 @@ class ProductModel {
     this.carouselModel,
     this.imageBytes,
     this.createdAt,
+    this.selectedSize,
+    this.paymentStatus,
   });
 
   factory ProductModel.fromFirestore(Map<String, dynamic> data, String id) {
@@ -57,13 +63,14 @@ class ProductModel {
             (data['quantity'] is num)
                 ? (data['quantity'] as num).toDouble()
                 : 1.0,
-
         isOffer: data['isOffer'] ?? false,
         offerImage: data['offerImage'],
         offerDescription: data['offerDescription'],
         carouselModel: data['carouselModel'],
         imageBytes: data['imageBytes'],
         createdAt: data['createdAt'],
+        selectedSize: data['selectedSize'], // ✅ new
+        paymentStatus: data['paymentStatus'], // ✅ new
       );
     } catch (e) {
       debugPrint("❌ Error parsing product [$id]: $e");
@@ -92,10 +99,11 @@ class ProductModel {
       },
       if (imageBytes != null) 'imageBytes': imageBytes,
       if (createdAt != null) 'createdAt': createdAt,
+      if (selectedSize != null) 'selectedSize': selectedSize, // ✅
+      if (paymentStatus != null) 'paymentStatus': paymentStatus, // ✅
     };
   }
 
-  // ✅ copyWith added here
   ProductModel copyWith({
     String? id,
     String? title,
@@ -114,6 +122,8 @@ class ProductModel {
     String? carouselModel,
     String? imageBytes,
     Timestamp? createdAt,
+    String? selectedSize, // ✅
+    String? paymentStatus, // ✅
   }) {
     return ProductModel(
       id: id ?? this.id,
@@ -133,6 +143,8 @@ class ProductModel {
       carouselModel: carouselModel ?? this.carouselModel,
       imageBytes: imageBytes ?? this.imageBytes,
       createdAt: createdAt ?? this.createdAt,
+      selectedSize: selectedSize ?? this.selectedSize, // ✅
+      paymentStatus: paymentStatus ?? this.paymentStatus, // ✅
     );
   }
 }

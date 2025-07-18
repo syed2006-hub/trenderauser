@@ -52,13 +52,13 @@ class _SearchResultPageState extends State<SearchResultPage>
 
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor:Theme.of(context).colorScheme.secondary,
       body: Column(
         children: [
           SafeArea(
             child: Container(
               height: 70.w,
-              color: Colors.black,
+              color: Theme.of(context).colorScheme.secondary,
               padding: EdgeInsets.symmetric(horizontal: 10.w),
               child: Row(
                 children: [

@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:trendera/model_providers/cart_provider.dart';
-import 'package:trendera/payment_loading/payment_loading_animation.dart';
+import 'package:trendera/model_providers/cart_provider.dart'; 
+import 'package:trendera/razorpay_screen/razorpay_screen.dart';
+import 'package:trendera/shimmers/cart_shimmer.dart';
 import 'package:trendera/singleproductdetails/single_prod_detaitls.dart';
 
 class CartPage extends StatefulWidget {
@@ -15,7 +16,8 @@ class CartPage extends StatefulWidget {
 
 class _CartPageState extends State<CartPage> {
   final formatCurrency = NumberFormat.simpleCurrency(locale: 'en_IN');
-
+  bool startanimation = false;
+  bool isLoading = true;
   void showPricingSummaryBottomSheet(
     BuildContext context,
     double totalPrice,
@@ -88,18 +90,18 @@ class _CartPageState extends State<CartPage> {
                   icon: const Icon(Icons.payment),
                   label: const Text("Continue to Payment"),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black,
+                    backgroundColor: Theme.of(context).colorScheme.secondary,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
                   onPressed: () {
-                    Navigator.pop(context); // Close sheet
+                    Navigator.pop(context);
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => const PaymentAnimation(),
+                        builder: (_) => PaymentPage(totalPrice: totalPrice),
                       ),
                     );
                   },
@@ -110,6 +112,31 @@ class _CartPageState extends State<CartPage> {
         );
       },
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      setState(() => isLoading = true);
+
+      await Provider.of<CartProducts>(
+        context,
+        listen: false,
+      ).fetchCartItemsFromFirestore();
+
+      setState(() => isLoading = false);
+
+      // Delay to allow the list to render before triggering animation
+      Future.delayed(const Duration(milliseconds: 100), () {
+        if (mounted) {
+          setState(() {
+            startanimation = true;
+          });
+        }
+      });
+    });
   }
 
   @override
@@ -125,8 +152,10 @@ class _CartPageState extends State<CartPage> {
       0,
       (sum, item) => sum + item.quantity,
     );
+    double screenwidth = MediaQuery.of(context).size.width;
+
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Theme.of(context).colorScheme.secondary,
       body: Column(
         children: [
           // Top Bar
@@ -134,7 +163,7 @@ class _CartPageState extends State<CartPage> {
             child: Container(
               height: 70.w,
               alignment: Alignment.center,
-              color: Colors.black,
+              color: Theme.of(context).colorScheme.secondary,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -145,7 +174,7 @@ class _CartPageState extends State<CartPage> {
                     ).textTheme.titleLarge?.copyWith(color: Colors.white),
                   ),
                   const SizedBox(width: 5),
-                  const Icon(Icons.shopping_cart_outlined),
+                  const Icon(Icons.shopping_cart),
                 ],
               ),
             ),
@@ -167,6 +196,8 @@ class _CartPageState extends State<CartPage> {
                           child: const Text("Your cart is empty"),
                         ),
                       )
+                      : isLoading
+                      ? CartShimmer()
                       : Stack(
                         children: [
                           // Cart List
@@ -179,156 +210,169 @@ class _CartPageState extends State<CartPage> {
                                 final item = items[index];
                                 final product = item.product;
 
-                                return Card(
-                                  margin: const EdgeInsets.symmetric(
-                                    vertical: 10,
+                                return AnimatedContainer(
+                                  duration: Duration(
+                                    milliseconds: 300 + (index * 100),
                                   ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(10),
-                                    child: Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: [
-                                        // Product Image
-                                        GestureDetector(
-                                          onTap: () {
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder:
-                                                    (_) => SingleProdDetaitls(
-                                                      singleproductdetails:
-                                                          product,
-                                                    ),
-                                              ),
-                                            );
-                                          },
-                                          child: ClipRRect(
-                                            borderRadius: BorderRadius.circular(
-                                              8,
-                                            ),
-                                            child: Image.network(
-                                              product.imageUrl.first,
-                                              width: 60,
-                                              height: 60,
-                                              fit: BoxFit.cover,
-                                              errorBuilder: (
+                                  transform: Matrix4.translationValues(
+                                    startanimation ? 0 : screenwidth,
+                                    0,
+                                    0,
+                                  ),
+                                  curve: Curves.easeOut,
+                                  child: Card(
+                                    color: Colors.grey[90],
+                                    margin: const EdgeInsets.symmetric(
+                                      vertical: 10,
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(10),
+                                      child: Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          // Product Image
+                                          GestureDetector(
+                                            onTap: () {
+                                              Navigator.push(
                                                 context,
-                                                error,
-                                                stackTrace,
-                                              ) {
-                                                return Container(
-                                                  width: 60,
-                                                  height: 60,
-                                                  color: Colors.grey[200],
-                                                  child: Icon(
-                                                    Icons.broken_image,
-                                                    color: Colors.grey[600],
-                                                    size: 30,
-                                                  ),
-                                                );
-                                              },
+                                                MaterialPageRoute(
+                                                  builder:
+                                                      (_) => SingleProdDetaitls(
+                                                        singleproductdetails:
+                                                            product,
+                                                      ),
+                                                ),
+                                              );
+                                            },
+                                            child: ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                              child: Image.network(
+                                                product.imageUrl.first,
+                                                width: 60,
+                                                height: 60,
+                                                fit: BoxFit.cover,
+                                                errorBuilder: (
+                                                  context,
+                                                  error,
+                                                  stackTrace,
+                                                ) {
+                                                  return Container(
+                                                    width: 60,
+                                                    height: 60,
+                                                    color: Colors.grey[200],
+                                                    child: Icon(
+                                                      Icons.broken_image,
+                                                      color: Colors.grey[600],
+                                                      size: 30,
+                                                    ),
+                                                  );
+                                                },
+                                              ),
                                             ),
                                           ),
-                                        ),
 
-                                        const SizedBox(width: 12),
+                                          const SizedBox(width: 12),
 
-                                        // Product Info
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                product.title,
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .headlineMedium
-                                                    ?.copyWith(
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      color: Colors.black,
-                                                    ),
-                                              ),
-                                              const SizedBox(height: 4),
-                                              item.selectedSize.isEmpty
-                                                  ? const SizedBox.shrink()
-                                                  : Text(
-                                                    "Size: ${item.selectedSize}",
-                                                  ),
-                                              const SizedBox(height: 4),
-                                              Row(
-                                                children: [
-                                                  IconButton(
-                                                    icon: const Icon(
-                                                      Icons
-                                                          .remove_circle_outline,
-                                                    ),
-                                                    color: Colors.black,
-                                                    onPressed: () {
-                                                      cartProvider
-                                                          .decreaseQuantity(
-                                                            item,
-                                                          );
-                                                    },
-                                                  ),
-                                                  Text('${item.quantity}'),
-                                                  IconButton(
-                                                    icon: const Icon(
-                                                      Icons.add_circle_outline,
-                                                    ),
-                                                    color: Colors.black,
-                                                    onPressed: () {
-                                                      cartProvider
-                                                          .increaseQuantity(
-                                                            item,
-                                                          );
-                                                    },
-                                                  ),
-                                                ],
-                                              ),
-                                              Text(
-                                                formatCurrency.format(
-                                                  product.price * item.quantity,
+                                          // Product Info
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  product.title,
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .headlineMedium
+                                                      ?.copyWith(
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        color: Colors.black,
+                                                      ),
                                                 ),
+                                                const SizedBox(height: 4),
+                                                item.selectedSize.isEmpty
+                                                    ? const SizedBox.shrink()
+                                                    : Text(
+                                                      "Size: ${item.selectedSize}",
+                                                    ),
+                                                const SizedBox(height: 4),
+                                                Row(
+                                                  children: [
+                                                    IconButton(
+                                                      icon: const Icon(
+                                                        Icons
+                                                            .remove_circle_outline,
+                                                      ),
+                                                      color: Colors.black,
+                                                      onPressed: () {
+                                                        cartProvider
+                                                            .decreaseQuantity(
+                                                              item,
+                                                            );
+                                                      },
+                                                    ),
+                                                    Text('${item.quantity}'),
+                                                    IconButton(
+                                                      icon: const Icon(
+                                                        Icons
+                                                            .add_circle_outline,
+                                                      ),
+                                                      color: Colors.black,
+                                                      onPressed: () {
+                                                        cartProvider
+                                                            .increaseQuantity(
+                                                              item,
+                                                            );
+                                                      },
+                                                    ),
+                                                  ],
+                                                ),
+                                                Text(
+                                                  formatCurrency.format(
+                                                    product.price *
+                                                        item.quantity,
+                                                  ),
+                                                  style: const TextStyle(
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+
+                                          // Delete / Qty Display
+                                          Column(
+                                            children: [
+                                              IconButton(
+                                                icon: const Icon(
+                                                  Icons.delete_outline,
+                                                ),
+                                                onPressed: () {
+                                                  cartProvider.removeItem(item);
+                                                  ScaffoldMessenger.of(
+                                                    context,
+                                                  ).showSnackBar(
+                                                    const SnackBar(
+                                                      content: Text(
+                                                        'Item removed from cart',
+                                                      ),
+                                                    ),
+                                                  );
+                                                },
+                                              ),
+                                              Text(
+                                                "Qty: ${item.quantity}",
                                                 style: const TextStyle(
-                                                  fontWeight: FontWeight.w500,
+                                                  fontSize: 12,
                                                 ),
                                               ),
                                             ],
                                           ),
-                                        ),
-
-                                        // Delete / Qty Display
-                                        Column(
-                                          children: [
-                                            IconButton(
-                                              icon: const Icon(
-                                                Icons.delete_outline,
-                                              ),
-                                              onPressed: () {
-                                                cartProvider.removeItem(item);
-                                                ScaffoldMessenger.of(
-                                                  context,
-                                                ).showSnackBar(
-                                                  const SnackBar(
-                                                    content: Text(
-                                                      'Item removed from cart',
-                                                    ),
-                                                  ),
-                                                );
-                                              },
-                                            ),
-                                            Text(
-                                              "Qty: ${item.quantity}",
-                                              style: const TextStyle(
-                                                fontSize: 12,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 );
@@ -341,6 +385,7 @@ class _CartPageState extends State<CartPage> {
                             bottom: 100,
                             right: 20,
                             child: FloatingActionButton.extended(
+                              heroTag: Clip.none,
                               onPressed: () {
                                 showPricingSummaryBottomSheet(
                                   context,
@@ -348,7 +393,8 @@ class _CartPageState extends State<CartPage> {
                                   totalQuantity,
                                 );
                               },
-                              backgroundColor: Colors.black,
+                              backgroundColor:
+                                  Theme.of(context).colorScheme.secondary,
                               icon: const Icon(Icons.payment),
                               label: const Text('Checkout'),
                             ),

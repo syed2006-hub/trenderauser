@@ -23,7 +23,7 @@ class _FavoriteitemspageState extends State<Favoriteitemspage>
     final favoriteProducts = context.watch<FavoriteProducts>().favproductinfo;
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor:Theme.of(context).colorScheme.secondary,
       body: Column(
         children: [
           // 🔺 Header
@@ -31,7 +31,7 @@ class _FavoriteitemspageState extends State<Favoriteitemspage>
             child: Container(
               width: double.infinity,
               height: 70.w,
-              color: Colors.black,
+              color:Theme.of(context).colorScheme.secondary,
               child: Center(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -43,7 +43,7 @@ class _FavoriteitemspageState extends State<Favoriteitemspage>
                       ).textTheme.titleLarge?.copyWith(color: Colors.white),
                     ),
                     const SizedBox(width: 5),
-                    const Icon(Icons.favorite_border, color: Colors.red),
+                    const Icon(Icons.favorite),
                   ],
                 ),
               ),

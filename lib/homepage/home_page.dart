@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:trendera/Gemini_service/gemini_service.dart';
 import 'package:trendera/ecommerce.dart';
 import 'package:trendera/fiterproducts/accesories_page.dart';
@@ -148,29 +149,112 @@ class _HomePageState extends State<HomePage>
   void _showCaptureDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: Text("Choose an option"),
-            content: Text("Do you want to upload or capture an image?"),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  handleImageFromScanner(ImageSource.camera);
-                },
-                child: Text("Capture", style: TextStyle(color: Colors.black)),
-              ),
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  handleImageFromScanner(ImageSource.gallery);
-                },
-                child: Text("Upload", style: TextStyle(color: Colors.black)),
-              ),
-            ],
+      builder: (context) {
+        return BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+          child: Center(
+            child: Stack(
+              children: [
+                // 🟢 Dialog content
+                AlertDialog(
+                  backgroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  contentPadding: EdgeInsets.all(16),
+                  content: SizedBox(
+                    height: 150,
+                    width: 300,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Upload (Or) Capture image",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            TextButton.icon(
+                              style: TextButton.styleFrom(
+                                backgroundColor:
+                                    Theme.of(context).colorScheme.secondary,
+                              ),
+                              onPressed: () {
+                                Navigator.pop(context);
+                                handleImageFromScanner(ImageSource.camera);
+                              },
+                              icon: Icon(Icons.camera, color: Colors.white),
+                              label: Text(
+                                "Capture",
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              iconAlignment: IconAlignment.end,
+                            ),
+                            SizedBox(width: 10),
+                            TextButton.icon(
+                              style: TextButton.styleFrom(
+                                backgroundColor:
+                                    Theme.of(context).colorScheme.secondary,
+                              ),
+                              onPressed: () {
+                                Navigator.pop(context);
+                                handleImageFromScanner(ImageSource.gallery);
+                              },
+                              icon: Icon(
+                                Icons.file_upload_outlined,
+                                color: Colors.white,
+                              ),
+                              label: Text(
+                                "Upload",
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              iconAlignment: IconAlignment.end,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                // ✨ Shimmer overlay clipped to dialog box only
+                Positioned.fill(
+                  child: Center(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: SizedBox(
+                        height: 150,
+                        width: 300,
+                        child: IgnorePointer(
+                          child: Shimmer.fromColors(
+                            baseColor: Colors.white24,
+                            highlightColor: Colors.white60,
+                            child: Container(
+                              color:
+                                  Colors
+                                      .white, // important for shimmer visibility
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
+        );
+      },
     );
   }
+
 
   Future<void> fetchInitialData(BuildContext context) async {
     try {
@@ -321,7 +405,9 @@ class _SearchAndChipHeader extends SliverPersistentHeaderDelegate {
     return ClipPath(
       clipper: ConvexBottomCornersClipper(),
       child: Container(
-        decoration: BoxDecoration(color: const Color.fromARGB(255, 1, 0, 0)),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.secondary,
+        ),
         child: SafeArea(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,

@@ -11,14 +11,15 @@ import 'package:provider/provider.dart';
 import 'package:trendera/ecommerce.dart';
 
 import 'package:trendera/firebase_options.dart';
-import 'package:trendera/front_page/login%20signup%20page/signin_page.dart';
-import 'package:trendera/initial_screen.dart';
+import 'package:trendera/sign_in_page/login_screen/signin_page.dart';
 import 'package:trendera/model_providers/cart_provider.dart';
 import 'package:trendera/model_providers/favorite_provider.dart';
 import 'package:trendera/model_providers/location_provider.dart';
 import 'package:trendera/model_providers/order_provider.dart';
 import 'package:trendera/model_providers/product_model.dart';
 import 'package:trendera/model_providers/user_model.dart';
+import 'package:trendera/myorder_page/my_order_page.dart';
+import 'package:trendera/shimmers/home_shimmer.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -52,6 +53,10 @@ class MyApp extends StatelessWidget {
         splitScreenMode: true,
         builder:
             (_, __) => GetMaterialApp(
+              routes: {
+                '/my-orders': (context) => const MyOrderPage(),
+                // add other named routes here
+              },
               debugShowCheckedModeBanner: false,
               theme: ThemeData(
                 useMaterial3: true,
@@ -62,7 +67,7 @@ class MyApp extends StatelessWidget {
                   ),
                 ),
                 colorScheme: const ColorScheme.light(
-                  secondary: Color.fromARGB(255, 209, 143, 209),
+                  secondary: Color.fromARGB(255, 80, 138, 161),
                   primary: Color(0xFFFFFFFF),
                 ),
                 textTheme: GoogleFonts.aDLaMDisplayTextTheme().copyWith(
@@ -88,11 +93,11 @@ class MyApp extends StatelessWidget {
                   ),
                 ),
                 appBarTheme: const AppBarTheme(elevation: 0, centerTitle: true),
-                iconTheme: const IconThemeData(size: 24, color: Colors.red),
+                iconTheme: const IconThemeData(size: 24, color: Colors.black),
                 elevatedButtonTheme: ElevatedButtonThemeData(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black,
-                    textStyle: const TextStyle(color: Colors.white),
+                    backgroundColor: Color(0xFF6394A8),
+                    textStyle: const TextStyle(color: Colors.black),
                   ),
                 ),
                 textSelectionTheme: TextSelectionThemeData(
@@ -119,13 +124,6 @@ class AuthGate extends StatelessWidget {
       return 'user';
     }
 
-    // Check in 'shops' collection
-    final shopDoc =
-        await FirebaseFirestore.instance.collection('shops').doc(uid).get();
-    if (shopDoc.exists && shopDoc.data()?['role'] == 'shop') {
-      return 'shop';
-    }
-
     return null;
   }
 
@@ -147,26 +145,19 @@ class AuthGate extends StatelessWidget {
             future: _getUserRole(user.uid),
             builder: (context, roleSnapshot) {
               if (roleSnapshot.connectionState == ConnectionState.waiting) {
-                return const Scaffold(
-                  body: Center(child: CircularProgressIndicator()),
-                );
+                return HomeShimmer();
               }
 
               final role = roleSnapshot.data;
               debugPrint("✅ AuthGate role: $role");
 
-              if (role == 'user') {
-                return const EcommerceMainPage();
-              } else {
-                // Signed in, but role is missing
-                return const LoginPage(isShop: false); // or RoleSelectionPage
-              }
+              return EcommerceMainPage();
             },
           );
         }
 
         // User not logged in
-        return const CustomIntroScreen(); // or RoleSelectionPage
+        return LoginPage(isShop: false);
       },
     );
   }

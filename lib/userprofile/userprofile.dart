@@ -8,9 +8,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:trendera/cloudinary_service/cloudinary_service.dart';
+import 'package:trendera/contact%20page/contact_us_page.dart';
 import 'package:trendera/location/location_page.dart';
 import 'package:trendera/model_providers/location_provider.dart';
 import 'package:trendera/myorder_page/my_order_page.dart';
@@ -80,33 +82,109 @@ class _UserProfileState extends State<UserProfile>
   void _showImageSourceDialog() {
     showDialog(
       context: context,
-      builder:
-          (_) => AlertDialog(
-            title: const Text("Choose an option"),
-            content: const Text("Do you want to upload or capture an image?"),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  pickImage(ImageSource.camera);
-                },
-                child: const Text(
-                  "Capture",
-                  style: TextStyle(color: Colors.black),
+      builder: (context) {
+        return BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+          child: Center(
+            child: Stack(
+              children: [
+                // 🟢 Dialog content
+                AlertDialog(
+                  backgroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  contentPadding: EdgeInsets.all(16),
+                  content: SizedBox(
+                    height: 150,
+                    width: 300,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Upload (Or) Capture image",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            TextButton.icon(
+                              style: TextButton.styleFrom(
+                                backgroundColor:
+                                    Theme.of(context).colorScheme.secondary,
+                              ),
+                              onPressed: () {
+                                Navigator.pop(context);
+                                pickImage(ImageSource.camera);
+                              },
+                              icon: Icon(Icons.camera, color: Colors.white),
+                              label: Text(
+                                "Capture",
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              iconAlignment: IconAlignment.end,
+                            ),
+                            SizedBox(width: 10),
+                            TextButton.icon(
+                              style: TextButton.styleFrom(
+                                backgroundColor:
+                                    Theme.of(context).colorScheme.secondary,
+                              ),
+                              onPressed: () {
+                                Navigator.pop(context);
+                                pickImage(ImageSource.gallery);
+                              },
+                              icon: Icon(
+                                Icons.file_upload_outlined,
+                                color: Colors.white,
+                              ),
+                              label: Text(
+                                "Upload",
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              iconAlignment: IconAlignment.end,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  pickImage(ImageSource.gallery);
-                },
-                child: const Text(
-                  "Upload",
-                  style: TextStyle(color: Colors.black),
+
+                // ✨ Shimmer overlay clipped to dialog box only
+                Positioned.fill(
+                  child: Center(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: SizedBox(
+                        height: 150,
+                        width: 300,
+                        child: IgnorePointer(
+                          child: Shimmer.fromColors(
+                            baseColor: Colors.white24,
+                            highlightColor: Colors.white60,
+                            child: Container(
+                              color:
+                                  Colors
+                                      .white, // important for shimmer visibility
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
+        );
+      },
     );
   }
 
@@ -148,7 +226,8 @@ class _UserProfileState extends State<UserProfile>
                           children: [
                             TextButton.icon(
                               style: TextButton.styleFrom(
-                                backgroundColor: Colors.black,
+                                backgroundColor:
+                                    Theme.of(context).colorScheme.secondary,
                               ),
                               onPressed: () {
                                 Clipboard.setData(
@@ -174,7 +253,8 @@ class _UserProfileState extends State<UserProfile>
                             SizedBox(width: 10),
                             TextButton.icon(
                               style: TextButton.styleFrom(
-                                backgroundColor: Colors.black,
+                                backgroundColor:
+                                    Theme.of(context).colorScheme.secondary,
                               ),
                               onPressed: () async {
                                 final Uri url = Uri.parse(
@@ -280,7 +360,6 @@ class _UserProfileState extends State<UserProfile>
         children: [
           _buildHeader(context, user),
           _buildProfileCard(context, user),
-          _buildBottomLogo(),
         ],
       ),
     );
@@ -290,20 +369,14 @@ class _UserProfileState extends State<UserProfile>
     return Container(
       width: double.infinity,
       height: 500.w,
-      decoration: const BoxDecoration(
-        color: Colors.black,
-        borderRadius: BorderRadius.vertical(bottom: Radius.circular(150)),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.secondary,
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(25)),
       ),
       child: SafeArea(
         child: Column(
           children: [
-            Text(
-              "Profile",
-              style: Theme.of(
-                context,
-              ).textTheme.headlineLarge?.copyWith(color: Colors.white),
-            ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
             Stack(
               alignment: Alignment.center,
               children: [
@@ -365,13 +438,22 @@ class _UserProfileState extends State<UserProfile>
     return Align(
       alignment: const Alignment(0, 0.13),
       child: Container(
-        height: 300.w,
+        padding: EdgeInsets.all(10),
         width: 350.w,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Colors.grey[100],
           borderRadius: BorderRadius.circular(25),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black26,
+              spreadRadius: 4,
+              blurRadius: 8,
+              offset: Offset(2, 4), // horizontal & vertical offset
+            ),
+          ],
         ),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             _buildRow(
@@ -384,9 +466,16 @@ class _UserProfileState extends State<UserProfile>
             _buildRow(
               context,
               "Address",
-              user?.address ?? '',
+              user?.address ?? 'Update Your Address',
               Icons.location_on,
               const LocationAccess(),
+            ),
+            _buildRow(
+              context,
+              "Contact",
+              'Get in touch',
+              Icons.headset_mic_outlined,
+              const ContactUsPage(),
             ),
             TextButton(
               onPressed: showLinkDialog,
@@ -402,7 +491,7 @@ class _UserProfileState extends State<UserProfile>
                         style: Theme.of(context).textTheme.bodyLarge,
                       ),
                       Text(
-                        "Click to get the admin side link",
+                        "Click to get link",
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ],
@@ -428,6 +517,7 @@ class _UserProfileState extends State<UserProfile>
 
   void _confirmLogout() {
     showDialog(
+      barrierDismissible: false,
       context: context,
       builder: (context) {
         return BackdropFilter(
@@ -442,16 +532,23 @@ class _UserProfileState extends State<UserProfile>
                     borderRadius: BorderRadius.circular(16),
                   ),
                   contentPadding: EdgeInsets.all(16),
-                  content: SizedBox(
-                    height: 150.h,
-                    width: 300.w,
+                  content: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxWidth: 400.w,
+                      minWidth: 350.w,
+                    ),
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text("Are you sure you want to log out?"),
+                        Lottie.asset(
+                          "assets/lottie/log_out.json",
+                          repeat: true,
+                          height: 150,
+                          width: 150,
+                        ),
                         Text(
-                          "Do you want to continue?",
+                          "Are you sure you want to log out?",
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: Colors.black,
@@ -459,6 +556,7 @@ class _UserProfileState extends State<UserProfile>
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
                         ),
+                        SizedBox(height: 20),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
@@ -483,11 +581,15 @@ class _UserProfileState extends State<UserProfile>
                             SizedBox(width: 10),
                             TextButton.icon(
                               style: TextButton.styleFrom(
-                                backgroundColor: Colors.black,
+                                backgroundColor:
+                                    Theme.of(context).colorScheme.secondary,
                               ),
                               onPressed: () async {
-                                Navigator.pop(context);
                                 await FirebaseAuth.instance.signOut();
+
+                                // After signout, AuthGate will detect and rebuild LoginSignupPage
+                                Get.back(); // Same as Navigator.pop(context)
+
                                 Get.snackbar(
                                   "Signed Out",
                                   "You're Signed Out!",
@@ -496,6 +598,7 @@ class _UserProfileState extends State<UserProfile>
                                   colorText: Colors.white,
                                 );
                               },
+
                               icon: Icon(Icons.logout, color: Colors.red),
                               label: Text(
                                 "LogOut",
@@ -506,30 +609,6 @@ class _UserProfileState extends State<UserProfile>
                           ],
                         ),
                       ],
-                    ),
-                  ),
-                ),
-
-                // ✨ Shimmer overlay clipped to dialog box only
-                Positioned.fill(
-                  child: Center(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(16),
-                      child: SizedBox(
-                        height: 150.h,
-                        width: 300.w,
-                        child: IgnorePointer(
-                          child: Shimmer.fromColors(
-                            baseColor: Colors.white24,
-                            highlightColor: Colors.white60,
-                            child: Container(
-                              color:
-                                  Colors
-                                      .white, // important for shimmer visibility
-                            ),
-                          ),
-                        ),
-                      ),
                     ),
                   ),
                 ),
@@ -573,27 +652,6 @@ class _UserProfileState extends State<UserProfile>
             ],
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildBottomLogo() {
-    return Align(
-      alignment: Alignment.bottomCenter,
-      child: Padding(
-        padding: const EdgeInsets.only(bottom: 120),
-        child: Opacity(
-          opacity: 0.6,
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: Image.asset(
-              "assets/images/logo.png",
-              height: 70,
-              width: 70,
-              fit: BoxFit.cover,
-            ),
-          ),
-        ),
       ),
     );
   }

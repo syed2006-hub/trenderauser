@@ -76,7 +76,7 @@ class _LocationAccessState extends State<LocationAccess> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Theme.of(context).colorScheme.secondary,
       body: Column(
         children: [
           // ✅ Unified Black Header
@@ -84,7 +84,7 @@ class _LocationAccessState extends State<LocationAccess> {
             child: Container(
               width: double.infinity,
               height: 70.w,
-              color: Colors.black,
+              color: Theme.of(context).colorScheme.secondary,
               child: Stack(
                 alignment: Alignment.center,
                 children: [

@@ -44,16 +44,12 @@ class _ProductImageCarouselState extends State<ProductImageCarousel> {
   }
 
   @override
-  @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
       child: Stack(
         children: [
           ClipRRect(
-            borderRadius: const BorderRadius.vertical(
-              bottom: Radius.circular(30),
-            ),
             child: PageView.builder(
               controller: _pageController,
               itemCount: widget.imageUrls.length,

@@ -148,11 +148,12 @@ class _SingleProdDetaitlsState extends State<SingleProdDetaitls> {
                               selected: isSelected,
                               onSelected:
                                   (_) => setState(() => selectedsize = size),
-                              selectedColor: Colors.black,
+                              selectedColor: Theme.of(context).colorScheme.secondary,
                               backgroundColor: Colors.grey.shade300,
                               labelStyle: TextStyle(
                                 color: isSelected ? Colors.white : Colors.black,
                               ),
+                              checkmarkColor: Colors.white,
                             );
                           }).toList(),
                     ),
@@ -186,7 +187,7 @@ class _SingleProdDetaitlsState extends State<SingleProdDetaitls> {
         width: 350.w,
         child: FloatingActionButton.extended(
           onPressed: addToCart,
-          backgroundColor: Colors.black,
+          backgroundColor: Theme.of(context).colorScheme.secondary,
           icon: const Icon(Icons.shopping_cart),
           label: const Text('Add to Cart'),
         ),

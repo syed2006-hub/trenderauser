@@ -12,6 +12,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   geolocator_windows
   native_splash_screen_windows
   permission_handler_windows
+  rive_common
   url_launcher_windows
 )
 
