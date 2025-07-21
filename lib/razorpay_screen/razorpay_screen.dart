@@ -6,11 +6,21 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:trendera/model_providers/cart_provider.dart';
+import 'package:trendera/model_providers/product_model.dart';
 import 'package:trendera/razorpay_screen/payment_success_sheet.dart';
 
 class PaymentPage extends StatefulWidget {
   final double totalPrice;
-  const PaymentPage({super.key, required this.totalPrice});
+  final String wentfrom;
+  final ProductModel? buynowitem;
+  final String? selectedsize;
+  const PaymentPage({
+    super.key,
+    required this.totalPrice,
+    required this.wentfrom,
+    this.buynowitem,
+    this.selectedsize,
+  });
 
   @override
   State<PaymentPage> createState() => _PaymentPageState();
@@ -50,89 +60,120 @@ class _PaymentPageState extends State<PaymentPage>
   }
 
   Future<void> _startPayment() async {
-    if (_selectedMethod == null) {
-      Get.snackbar(
-        "No Payment Method Selected",
-        "Please select a payment method to continue.",
-        backgroundColor: Colors.redAccent,
-        colorText: Colors.white,
-        snackPosition: SnackPosition.BOTTOM,
-      );
-      return;
+    try {
+      if (_selectedMethod == null) {
+        Get.snackbar(
+          "No Payment Method Selected",
+          "Please select a payment method to continue.",
+          backgroundColor: Colors.redAccent,
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM,
+        );
+        return;
+      }
+
+      if (!_formKey.currentState!.validate()) return;
+
+      setState(() => _isProcessing = true);
+      await Future.delayed(const Duration(seconds: 3)); // Simulated delay
+
+      final user = FirebaseAuth.instance.currentUser;
+      final isCartFlow = widget.wentfrom.toLowerCase() == 'cart';
+
+      final cartProvider = Provider.of<CartProducts>(context, listen: false);
+      final List<Map<String, dynamic>> orderItems =
+          isCartFlow
+              ? cartProvider.cartItems.map((item) {
+                return {
+                  'id': item.product.id,
+                  'title': item.product.title,
+                  'imageUrl': item.product.imageUrl,
+                  'price': item.product.price,
+                  'quantity': item.quantity,
+                  'selectedSize': item.selectedSize,
+                };
+              }).toList()
+              : [
+                {
+                  'id': widget.buynowitem!.id,
+                  'title': widget.buynowitem!.title,
+                  'imageUrl': widget.buynowitem!.imageUrl,
+                  'price': widget.buynowitem!.price,
+                  'quantity': 1,
+                  'selectedSize':
+                      widget.selectedsize, // or user-selected
+                },
+              ];
+
+      if (user != null && orderItems.isNotEmpty) {
+        final userOrderRef =
+            FirebaseFirestore.instance
+                .collection('users')
+                .doc(user.uid)
+                .collection('orders')
+                .doc();
+
+        final globalOrderRef = FirebaseFirestore.instance
+            .collection('orders')
+            .doc(userOrderRef.id);
+
+        final orderData = {
+          'userId': user.uid,
+          'timestamp': FieldValue.serverTimestamp(),
+          'paymentStatus': 'success',
+          'paymentMethod': _selectedMethod.toString().split('.').last,
+          'totalPrice': widget.totalPrice,
+          'items': orderItems,
+        };
+
+        await userOrderRef.set(orderData);
+        await globalOrderRef.set(orderData);
+
+        // 🔻 Subtract quantities
+        for (final item in orderItems) {
+          final productRef = FirebaseFirestore.instance
+              .collection('products')
+              .doc(item['id'] as String);
+
+          final productSnapshot = await productRef.get();
+          if (productSnapshot.exists) {
+            final currentQty =
+                (productSnapshot.data()?['totalquantity'] ?? 0) as int;
+            final newQty = currentQty - (item['quantity'] as int);
+            await productRef.update({'totalquantity': newQty < 0 ? 0 : newQty});
+          }
+        }
+
+        if (isCartFlow) {
+          await cartProvider.clearCart();
+        }
+
+        // 🔁 Refresh products
+        await Provider.of<ProductProvider>(
+          context,
+          listen: false,
+        ).fetchProducts();
+
+        setState(() {
+          _isProcessing = false;
+          _paymentSuccess = true;
+        });
+
+        showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          backgroundColor: Colors.transparent,
+          builder:
+              (_) => PaymentSuccessBottomSheet(
+                totalPrice: widget.totalPrice,
+                items: orderItems,
+              ),
+        );
+      }
+    } catch (e) {
+      debugPrint("Payment error: $e");
+      setState(() => _isProcessing = false);
     }
-
-    if (!_formKey.currentState!.validate()) return;
-
-    setState(() => _isProcessing = true);
-    await Future.delayed(const Duration(seconds: 3)); // Simulated delay
-
-    final cartProvider = Provider.of<CartProducts>(context, listen: false);
-    final user = FirebaseAuth.instance.currentUser;
-
-    final clonedCartItems =
-        cartProvider.cartItems.map((item) {
-          return {
-            'title': item.product.title,
-            'imageUrl': item.product.imageUrl.first,
-            'price': item.product.price,
-            'quantity': item.quantity,
-            'selectedSize': item.selectedSize,
-          };
-        }).toList();
-
-    if (user != null && cartProvider.cartItems.isNotEmpty) {
-      final userOrderRef =
-          FirebaseFirestore.instance
-              .collection('users')
-              .doc(user.uid)
-              .collection('orders')
-              .doc();
-
-      final globalOrderRef = FirebaseFirestore.instance
-          .collection('orders') // ✅ Global collection
-          .doc(userOrderRef.id); // Reuse same ID
-
-      final orderData = {
-        'userId': user.uid,
-        'timestamp': FieldValue.serverTimestamp(),
-        'paymentStatus': 'success',
-        'paymentMethod': _selectedMethod.toString().split('.').last,
-        'totalPrice': widget.totalPrice,
-        'items':
-            cartProvider.cartItems.map((item) {
-              return {
-                'id': item.product.id,
-                'title': item.product.title,
-                'imageUrl': item.product.imageUrl,
-                'price': item.product.price,
-                'quantity': item.quantity,
-                'selectedSize': item.selectedSize,
-              };
-            }).toList(),
-      };
-
-      // Save to user-specific and global collection
-      await userOrderRef.set(orderData);
-      await globalOrderRef.set(orderData);
-
-      await cartProvider.clearCart();
-    }
-
-    setState(() {
-      _isProcessing = false;
-      _paymentSuccess = true;
-    });
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder:
-          (_) => PaymentSuccessBottomSheet(
-            totalPrice: widget.totalPrice,
-            items: clonedCartItems,
-          ),
-    );
   }
 
   Widget _buildUPIAppSelector() => DropdownButtonFormField<String>(

@@ -8,12 +8,14 @@ class SearchResultPage extends StatefulWidget {
   final String query;
   final List<ProductModel>? similarProducts;
   final List<ProductModel>? relatedProducts;
+  final List<ProductModel>? listProducts;
 
   const SearchResultPage({
     super.key,
     required this.query,
     this.similarProducts,
     this.relatedProducts,
+    this.listProducts,
   });
 
   @override
@@ -31,7 +33,7 @@ class _SearchResultPageState extends State<SearchResultPage>
     if (widget.similarProducts == null && widget.relatedProducts == null) {
       Future.microtask(() {
         final provider = Provider.of<ProductProvider>(context, listen: false);
-        provider.searchProducts(widget.query);
+        provider.searchProducts(widget.query, widget.listProducts ?? []);
       });
     }
   }
@@ -50,9 +52,9 @@ class _SearchResultPageState extends State<SearchResultPage>
           return !similar.any((simProd) => simProd.id == relProd.id);
         }).toList();
 
-
-    return Scaffold(
-      backgroundColor:Theme.of(context).colorScheme.secondary,
+    return Scaffold( 
+      resizeToAvoidBottomInset: false,
+      backgroundColor: Theme.of(context).colorScheme.secondary,
       body: Column(
         children: [
           SafeArea(
@@ -64,6 +66,11 @@ class _SearchResultPageState extends State<SearchResultPage>
                 children: [
                   IconButton(
                     onPressed: () {
+                      final provider = Provider.of<ProductProvider>(
+                        context,
+                        listen: false,
+                      );
+                      provider.searchResults.clear();
                       Navigator.of(context).pop();
                     },
                     icon: Icon(Icons.arrow_back_ios_new_outlined),

@@ -2,28 +2,64 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:trendera/model_providers/product_model.dart';
 import 'package:trendera/singleproductdetails/single_prod_detaitls.dart';
 
-class ImageCarousel extends StatelessWidget {
+class ImageCarousel extends StatefulWidget {
   const ImageCarousel({super.key});
+
+  @override
+  State<ImageCarousel> createState() => _ImageCarouselState();
+}
+
+class _ImageCarouselState extends State<ImageCarousel> {
+  int _currentIndex = 0;
+  final CarouselSliderController _carouselController =
+      CarouselSliderController();
 
   @override
   Widget build(BuildContext context) {
     final offerProducts = Provider.of<ProductProvider>(context).offerProducts;
 
-    return CarouselSlider(
-      options: CarouselOptions(
-        autoPlay: true,
-        autoPlayInterval: const Duration(seconds: 8),
-        viewportFraction: 1.0,
-        height: 200,
-        enlargeCenterPage: true,
-      ),
-      items:
-          offerProducts.map((product) {
-            return _CarouselItem(product: product);
-          }).toList(),
+    return Column(
+      children: [
+        CarouselSlider(
+          carouselController: _carouselController,
+          options: CarouselOptions(
+            height: 200,
+            autoPlay: true,
+            viewportFraction: 1.0,
+            enableInfiniteScroll: false,
+            autoPlayInterval: const Duration(seconds: 8),
+            onPageChanged: (index, reason) {
+              setState(() => _currentIndex = index);
+            },
+          ),
+          items:
+              offerProducts.map((product) {
+                return _CarouselItem(product: product);
+              }).toList(),
+        ),
+
+        const SizedBox(height: 10),
+
+        /// SMOOTH DOT INDICATOR
+        AnimatedSmoothIndicator(
+          activeIndex: _currentIndex,
+          count: offerProducts.length,
+          effect: ExpandingDotsEffect(
+            dotHeight: 8,
+            dotWidth: 8,
+            spacing: 6,
+            activeDotColor: Colors.black,
+            dotColor: Colors.blueGrey,
+          ),
+          onDotClicked: (index) {
+            _carouselController.animateToPage(index);
+          },
+        ),
+      ],
     );
   }
 }
@@ -80,7 +116,8 @@ class _ModelAState extends State<_ModelA> {
         );
       },
       child: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
           gradient: LinearGradient(colors: [Colors.grey, Colors.black]),
         ),
         child: Row(
@@ -185,12 +222,16 @@ class _ModelB extends StatelessWidget {
             ),
           ),
       child: Container(
-        color: Colors.black,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          color: Colors.black,
+        ),
+
         child: Stack(
           fit: StackFit.expand,
           children: [
             Image.network(
-              offerImage.toString() ,
+              offerImage.toString(),
               fit: BoxFit.cover,
               errorBuilder:
                   (_, __, ___) => const Center(
@@ -264,7 +305,10 @@ class _ModelC extends StatelessWidget {
             ),
           ),
           Container(
-            color: Colors.black54,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              color: Colors.black,
+            ),
             padding: const EdgeInsets.all(16),
             alignment: Alignment.center,
             child: Column(

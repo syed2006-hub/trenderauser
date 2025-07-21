@@ -11,17 +11,17 @@ class GeminiService {
 
   Future<Map<String, List<ProductModel>>> fetchSimilarProducts({
     required File imageFile,
-    required List<ProductModel> allProducts,
+    required List<ProductModel> listProducts,
   }) async {
     final base64Image = base64Encode(await imageFile.readAsBytes());
 
-    String _buildPrompt(List<ProductModel> products) {
+    String  buildPrompt(List<ProductModel> products) {
       final simplifiedList = products.map((p) {
         return {
           "id": p.id,
           "title": p.title,
           "description": p.productDescription,
-          "visual_hint": "This is a ${p.type} item.",
+          "visual_hint": "This is a ${p.category} item.",
         };
       }).toList();
 
@@ -53,7 +53,7 @@ ${jsonEncode(simplifiedList)}
 ''';
     }
 
-    final promptText = _buildPrompt(allProducts);
+    final promptText =  buildPrompt(listProducts);
 
     final requestBody = {
       "contents": [
@@ -78,7 +78,7 @@ ${jsonEncode(simplifiedList)}
       debugPrint("Gemini response [${response.statusCode}]: ${response.body}");
 
       if (response.statusCode == 200) {
-        return _parseGeminiResponse(response.body, allProducts);
+        return _parseGeminiResponse(response.body, listProducts);
       } else {
         throw Exception("Gemini API error: ${response.statusCode}");
       }

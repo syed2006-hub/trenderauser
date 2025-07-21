@@ -50,6 +50,7 @@ class _ProductCardState extends State<ProductCard> {
                     Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(15),
+                        color: Colors.grey[100]
                       ),
                     ),
                     ClipRRect(

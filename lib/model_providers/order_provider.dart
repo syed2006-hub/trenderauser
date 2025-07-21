@@ -54,7 +54,8 @@ class OrderProvider with ChangeNotifier {
                           ? (item['ratings'] as num).toDouble()
                           : 0.0,
                   isFavorite: false,
-                  type: item['type'] ?? '',
+                  category: item['category']  ,
+                  subcategory: item['subcategory'] ,
                   size: List<String>.from(item['size'] ?? []),
                   isOffer: item['isOffer'] ?? false,
                   offerImage: item['offerImage'],
@@ -62,15 +63,13 @@ class OrderProvider with ChangeNotifier {
                   carouselModel: item['carouselModel'],
                   imageBytes: item['imageBytes'],
                   totalquantity: item['quantity'] ?? 1,
+                  shopId: item['shopId']
                 ),
           );
 
           // If found, override dynamic fields from order
           final enrichedProduct = matchingProduct.copyWith(
-            totalquantity:
-                (item['quantity'] is num)
-                    ? (item['quantity'] as num).toDouble()
-                    : 1.0,
+            totalquantity: item['quantity'] ,
             selectedSize: item['selectedSize'],
             paymentStatus: orderData['paymentStatus'], // pulled from Firestore
           );

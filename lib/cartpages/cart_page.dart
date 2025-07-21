@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:trendera/model_providers/cart_provider.dart'; 
+import 'package:trendera/model_providers/cart_provider.dart';
 import 'package:trendera/razorpay_screen/razorpay_screen.dart';
 import 'package:trendera/shimmers/cart_shimmer.dart';
 import 'package:trendera/singleproductdetails/single_prod_detaitls.dart';
@@ -101,7 +101,11 @@ class _CartPageState extends State<CartPage> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => PaymentPage(totalPrice: totalPrice),
+                        builder:
+                            (_) => PaymentPage(
+                              totalPrice: totalPrice,
+                              wentfrom: 'cart',
+                            ),
                       ),
                     );
                   },
@@ -395,8 +399,8 @@ class _CartPageState extends State<CartPage> {
                               },
                               backgroundColor:
                                   Theme.of(context).colorScheme.secondary,
-                              icon: const Icon(Icons.payment),
-                              label: const Text('Checkout'),
+                              icon: const Icon(Icons.shopping_cart_checkout),
+                              label: const Text('Buy Now'),
                             ),
                           ),
                         ],

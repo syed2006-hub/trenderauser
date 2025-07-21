@@ -11,11 +11,11 @@ class HomeShimmer extends StatefulWidget {
 
 class _HomeShimmerState extends State<HomeShimmer> {
   final List<String> loadingTexts = [
-    "⏳ Hang tight, awesome stuff coming...",
-    "🔍 Finding better products for you...",
+    "⏳ Hang tight ",
+    "🔍 Finding products ",
     "🎯 Matching your style...",
-    "🛍️ Loading trends you'll love...",
-    
+    "🛍️ Loading trends",
+    "❤️ you'll love...",
   ];
 
   int _currentTextIndex = 0;
@@ -57,7 +57,13 @@ class _HomeShimmerState extends State<HomeShimmer> {
                   const SizedBox(height: 32),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Container(height: 42, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12))),
+                    child: Container(
+                      height: 42,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 16),
                   SizedBox(
@@ -67,23 +73,38 @@ class _HomeShimmerState extends State<HomeShimmer> {
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       itemCount: 6,
                       separatorBuilder: (_, __) => const SizedBox(width: 12),
-                      itemBuilder: (_, __) => Column(
-                        children: [
-                          Container(
-                            height: 65,
-                            width: 65,
-                            decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.white),
+                      itemBuilder:
+                          (_, __) => Column(
+                            children: [
+                              Container(
+                                height: 65,
+                                width: 65,
+                                decoration: const BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              Container(
+                                height: 10,
+                                width: 40,
+                                color: Colors.white,
+                              ),
+                            ],
                           ),
-                          const SizedBox(height: 6),
-                          Container(height: 10, width: 40, color: Colors.white),
-                        ],
-                      ),
                     ),
                   ),
                   const SizedBox(height: 10),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Container(height: 180, width: double.infinity, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16))),
+                    child: Container(
+                      height: 180,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 10),
                   Expanded(
@@ -92,29 +113,39 @@ class _HomeShimmerState extends State<HomeShimmer> {
                       child: GridView.builder(
                         padding: const EdgeInsets.only(top: 10, bottom: 20),
                         itemCount: 6,
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          mainAxisSpacing: 16,
-                          crossAxisSpacing: 16,
-                          childAspectRatio: 0.68,
-                        ),
-                        itemBuilder: (_, __) => Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              height: screenWidth / 2 - 32,
-                              width: double.infinity,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(12),
-                              ),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              mainAxisSpacing: 16,
+                              crossAxisSpacing: 16,
+                              childAspectRatio: 0.68,
                             ),
-                            const SizedBox(height: 8),
-                            Container(height: 12, width: 100, color: Colors.white),
-                            const SizedBox(height: 6),
-                            Container(height: 10, width: 60, color: Colors.white),
-                          ],
-                        ),
+                        itemBuilder:
+                            (_, __) => Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  height: screenWidth / 2 - 32,
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Container(
+                                  height: 12,
+                                  width: 100,
+                                  color: Colors.white,
+                                ),
+                                const SizedBox(height: 6),
+                                Container(
+                                  height: 10,
+                                  width: 60,
+                                  color: Colors.white,
+                                ),
+                              ],
+                            ),
                       ),
                     ),
                   ),

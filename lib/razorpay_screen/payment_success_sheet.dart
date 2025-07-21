@@ -139,7 +139,7 @@ class _PaymentSuccessBottomSheetState extends State<PaymentSuccessBottomSheet>
                 const SizedBox(height: 8),
                 ...widget.items.map(
                   (item) => ListTile(
-                    leading: Image.network(item['imageUrl'], width: 40),
+                    leading: Image.network(item['imageUrl'][0], width: 40),
                     title: Text(item['title']),
                     subtitle: Row(
                       children: [

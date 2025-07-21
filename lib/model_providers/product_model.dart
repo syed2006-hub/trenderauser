@@ -10,19 +10,21 @@ class ProductModel {
   final String productDescription;
   final double ratings;
   final bool isFavorite;
-  final String type;
   final List<String> size;
-  final double totalquantity;
+  final int totalquantity;
   final bool isOffer;
   final String? offerImage;
   final String? offerDescription;
   final String? carouselModel;
   final String? imageBytes;
   final Timestamp? createdAt;
-
-  // ✅ Newly added fields
   final String? selectedSize;
   final String? paymentStatus;
+
+  // ✅ Newly added fields
+  final String category;
+  final String subcategory;
+  final String shopId;
 
   ProductModel({
     required this.id,
@@ -33,7 +35,6 @@ class ProductModel {
     required this.productDescription,
     required this.ratings,
     required this.isFavorite,
-    required this.type,
     required this.size,
     required this.totalquantity,
     required this.isOffer,
@@ -44,6 +45,9 @@ class ProductModel {
     this.createdAt,
     this.selectedSize,
     this.paymentStatus,
+    required this.category,
+    required this.subcategory,
+    required this.shopId,
   });
 
   factory ProductModel.fromFirestore(Map<String, dynamic> data, String id) {
@@ -57,27 +61,51 @@ class ProductModel {
         productDescription: data['productdescription'] ?? '',
         ratings: (data['ratings'] ?? 0).toDouble(),
         isFavorite: data['isfavorite'] ?? false,
-        type: data['type'] ?? '',
         size: List<String>.from(data['size'] ?? []),
-        totalquantity:
-            (data['quantity'] is num)
-                ? (data['quantity'] as num).toDouble()
-                : 1.0,
+        totalquantity: data['totalquantity'] ?? 0,
+
         isOffer: data['isOffer'] ?? false,
         offerImage: data['offerImage'],
         offerDescription: data['offerDescription'],
         carouselModel: data['carouselModel'],
         imageBytes: data['imageBytes'],
         createdAt: data['createdAt'],
-        selectedSize: data['selectedSize'], // ✅ new
-        paymentStatus: data['paymentStatus'], // ✅ new
+        selectedSize: data['selectedSize'],
+        paymentStatus: data['paymentStatus'],
+        category: data['category'] ?? '',
+        subcategory: data['subcategory'] ?? '',
+        shopId: data['shopId'] ?? '',
       );
     } catch (e) {
       debugPrint("❌ Error parsing product [$id]: $e");
       rethrow;
     }
   }
-
+  factory ProductModel.fromMap(Map<String, dynamic> map) {
+    return ProductModel(
+      id: map['id'],
+      title: map['title'] ?? '',
+      price: (map['price'] ?? 0).toDouble(),
+      company: map['company'] ?? '',
+      imageUrl: List<String>.from(map['imageurl'] ?? []),
+      productDescription: map['productdescription'] ?? '',
+      ratings: (map['ratings'] ?? 0).toDouble(),
+      isFavorite: map['isfavorite'] ?? false,
+      size: List<String>.from(map['size'] ?? []),
+      totalquantity: map['totalquantity'] ?? 0,
+      isOffer: map['isOffer'] ?? false,
+      offerImage: map['offerImage'],
+      offerDescription: map['offerDescription'],
+      carouselModel: map['carouselModel'],
+      imageBytes: map['imageBytes'],
+      createdAt: map['createdAt'],
+      selectedSize: map['selectedSize'],
+      paymentStatus: map['paymentStatus'],
+      category: map['category'] ?? '',
+      subcategory: map['subcategory'] ?? '',
+      shopId: map['shopId'] ?? '',
+    );
+  }
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -88,10 +116,12 @@ class ProductModel {
       'productdescription': productDescription,
       'ratings': ratings,
       'isfavorite': isFavorite,
-      'type': type,
       'size': size,
-      'totalquantity': totalquantity,
+      'quantity': totalquantity,
       'isOffer': isOffer,
+      'category': category,
+      'subcategory': subcategory,
+      'shopId': shopId,
       if (isOffer) ...{
         'offerImage': offerImage,
         'offerDescription': offerDescription,
@@ -99,8 +129,8 @@ class ProductModel {
       },
       if (imageBytes != null) 'imageBytes': imageBytes,
       if (createdAt != null) 'createdAt': createdAt,
-      if (selectedSize != null) 'selectedSize': selectedSize, // ✅
-      if (paymentStatus != null) 'paymentStatus': paymentStatus, // ✅
+      if (selectedSize != null) 'selectedSize': selectedSize,
+      if (paymentStatus != null) 'paymentStatus': paymentStatus,
     };
   }
 
@@ -115,7 +145,7 @@ class ProductModel {
     bool? isFavorite,
     String? type,
     List<String>? size,
-    double? totalquantity,
+    int? totalquantity,
     bool? isOffer,
     String? offerImage,
     String? offerDescription,
@@ -134,7 +164,8 @@ class ProductModel {
       productDescription: productDescription ?? this.productDescription,
       ratings: ratings ?? this.ratings,
       isFavorite: isFavorite ?? this.isFavorite,
-      type: type ?? this.type,
+      category: category,
+      subcategory: subcategory,
       size: size ?? this.size,
       totalquantity: totalquantity ?? this.totalquantity,
       isOffer: isOffer ?? this.isOffer,
@@ -145,6 +176,7 @@ class ProductModel {
       createdAt: createdAt ?? this.createdAt,
       selectedSize: selectedSize ?? this.selectedSize, // ✅
       paymentStatus: paymentStatus ?? this.paymentStatus, // ✅
+      shopId: shopId,
     );
   }
 }
@@ -152,19 +184,19 @@ class ProductModel {
 class ProductProvider extends ChangeNotifier {
   bool isLoading = false;
   List<ProductModel> allProducts = [];
-  List<ProductModel> _searchResults = [];
+  List<ProductModel> searchResults = [];
   List<String> _recentSearches = [];
 
-  List<ProductModel> get searchResults => _searchResults;
+  List<ProductModel> get results => searchResults;
   List<String> get recentSearches => _recentSearches;
 
-  void searchProducts(String query) {
-    if (query.isEmpty) return;
+  void searchProducts(String query, List<ProductModel> queryProducts) {
+    if (query.isEmpty || queryProducts.isEmpty) return;
 
-    _searchResults =
-        allProducts.where((product) {
+    searchResults =
+        queryProducts.where((product) {
           final title = product.title.toLowerCase();
-          final type = product.type.toLowerCase();
+          final type = product.category.toLowerCase();
           final lowerQuery = query.toLowerCase();
           return title.contains(lowerQuery) || type.contains(lowerQuery);
         }).toList();
@@ -193,7 +225,7 @@ class ProductProvider extends ChangeNotifier {
             return ProductModel.fromFirestore(data, doc.id);
           }).toList();
     } catch (e) {
-      print("Error fetching products: $e");
+      debugPrint("Error fetching products: $e");
     } finally {
       isLoading = false;
       notifyListeners();
@@ -205,4 +237,13 @@ class ProductProvider extends ChangeNotifier {
 
   List<ProductModel> get topRatingProducts =>
       allProducts.where((p) => p.ratings > 4.1).toList();
+
+  List<ProductModel> filterByCategory(String category) =>
+      allProducts.where((p) => p.category == category).toList();
+
+  List<ProductModel> filterBySubcategory(String subcategory) =>
+      allProducts.where((p) => p.subcategory == subcategory).toList();
+
+  List<ProductModel> filterByShop(String shopId) =>
+      allProducts.where((p) => p.shopId == shopId).toList();
 }

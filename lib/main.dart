@@ -8,9 +8,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:trendera/ecommerce.dart';
+import 'package:trendera/first_screen.dart';
 
 import 'package:trendera/firebase_options.dart';
+import 'package:trendera/model_providers/filter_product_provider.dart';
 import 'package:trendera/sign_in_page/login_screen/signin_page.dart';
 import 'package:trendera/model_providers/cart_provider.dart';
 import 'package:trendera/model_providers/favorite_provider.dart';
@@ -46,6 +47,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ProductProvider()),
         ChangeNotifierProvider(create: (_) => UserProvider()),
         ChangeNotifierProvider(create: (_) => OrderProvider()),
+        ChangeNotifierProvider(create: (_) => FilterProvider()),
       ],
       child: ScreenUtilInit(
         designSize: const Size(412, 915),
