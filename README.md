@@ -11,6 +11,11 @@
 | Architecture     | MVP                           |
 | State Management | Riverpod                      |
 
+### 🖼 Preview
+<p align="center">
+  <img src="https://res.cloudinary.com/dzg4kohus/image/upload/v1768329789/2_cav9yf.png" width="600" />
+</p>
+
 ### 🧠 Description
 
 **TrendEra** is a modern e-commerce application designed to deliver a seamless and intelligent shopping experience. The app integrates AI-powered image search to help users find products visually while maintaining a scalable and secure architecture.
@@ -33,8 +38,4 @@
 | AI       | Gemini API              |
 | Storage  | Cloudinary              |
 
-### 🖼 Preview
 
-![TrendEra](https://res.cloudinary.com/dzg4kohus/image/upload/v1768329789/2_cav9yf.png)
-
----
