@@ -1,16 +1,40 @@
-# trendera
+ 
+## 1️⃣ TrendEra – Smart E-Commerce Application
 
-A new Flutter project.
+### 📌 Project Summary
 
-## Getting Started
+| Field            | Details                       |
+| ---------------- | ----------------------------- |
+| Category         | E-Commerce / Mobile App       |
+| Platform         | Flutter (Android / Web Ready) |
+| Auth             | Google OAuth                  |
+| Architecture     | MVP                           |
+| State Management | Riverpod                      |
 
-This project is a starting point for a Flutter application.
+### 🧠 Description
 
-A few resources to get you started if this is your first Flutter project:
+**TrendEra** is a modern e-commerce application designed to deliver a seamless and intelligent shopping experience. The app integrates AI-powered image search to help users find products visually while maintaining a scalable and secure architecture.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+### ✨ Features
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+* Product browsing and checkout flow
+* Role-based authentication (Admin / User)
+* AI image search using **Gemini API**
+* Optimized state handling with Riverpod
+* Secure cloud-based image storage
+
+### 🛠 Technology Stack
+
+| Layer    | Tools                   |
+| -------- | ----------------------- |
+| Frontend | Flutter                 |
+| State    | Riverpod                |
+| Auth     | Firebase Authentication |
+| AI       | Gemini API              |
+| Storage  | Cloudinary              |
+
+### 🖼 Preview
+
+![TrendEra](https://res.cloudinary.com/dzg4kohus/image/upload/v1768329789/2_cav9yf.png)
+
+---
